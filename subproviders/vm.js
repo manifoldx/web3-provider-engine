@@ -1,7 +1,7 @@
 const doWhilst = require('async/doWhilst')
 const inherits = require('util').inherits
 const Stoplight = require('../util/stoplight.js')
-const createVm = require('ethereumjs-vm/dist/hooked').fromWeb3Provider
+const createVm = require('ethereumjs-vm').fromWeb3Provider
 const Block = require('ethereumjs-block')
 const { TransactionFactory } = require('@ethereumjs/tx')
 const ethUtil = require('ethereumjs-util')
