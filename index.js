@@ -37,6 +37,9 @@ function Web3ProviderEngine(opts) {
   // local state
   self.currentBlock = null
   self._providers = []
+
+    // ignore all errors broadcast as you kill.
+    self.silent = false
 }
 
 // public
@@ -208,6 +211,10 @@ Web3ProviderEngine.prototype._handleAsync = function(payload, finished) {
   function end(_error, _result) {
     error = _error
     result = _result
+
+    // @error ignores
+    // @dev ignores everything
+    if (self.silent) return;
 
     eachSeries(stack, function(fn, callback) {
 
