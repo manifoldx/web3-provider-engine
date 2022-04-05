@@ -1,4 +1,4 @@
-const stringify = require('json-stable-stringify')
+const stringify = require('fast-json-stable-stringify')
 
 module.exports = {
   cacheIdentifierForPayload: cacheIdentifierForPayload,

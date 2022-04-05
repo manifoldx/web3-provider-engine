@@ -1,5 +1,5 @@
 const ProviderSubprovider = require('./json-rpc-engine-middleware')
-const createInflightCacheMiddleware = require('eth-json-rpc-middleware')
+const { createInflightCacheMiddleware } = require('eth-json-rpc-middleware')
 
 class InflightCacheSubprovider extends ProviderSubprovider {
   constructor(opts) {

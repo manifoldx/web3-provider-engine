@@ -1,10 +1,6 @@
-
 const inherits = require('util').inherits
 const createPayload = require('../util/create-payload.js')
 const Subprovider = require('./subprovider.js')
-const { ethErrors, serializeError } = require('eth-rpc-errors')
-require('es6-promise').polyfill();
-require('isomorphic-fetch');
 
 module.exports = RpcSource
 
@@ -15,16 +11,22 @@ function RpcSource(opts) {
   self.rpcUrl = opts.rpcUrl
 }
 
-RpcSource.prototype.handleRequest = function(payload, next, end){
-  const self = this
-  const targetUrl = self.rpcUrl
 
-  // overwrite id to conflict with other concurrent users
-  const sanitizedPayload = sanitizePayload(payload)
-  const newPayload = createPayload(sanitizedPayload)
+RpcSource.prototype.handleRequest = function (payload, next, end) {
+  const self = this
+  var targetUrl = self.rpcUrl
+  var method = payload.method
+  var params = payload.params
+
+  // new payload with random large id,
+  // so as not to conflict with other concurrent users
+  var newPayload = createPayload(payload)
+
+  // console.log('------------------ network attempt -----------------')
+  // console.log(payload)
+  // console.log('---------------------------------------------')
 
   fetch(targetUrl, {
-    uri: targetUrl,
     method: 'POST',
     headers: {
       'Accept': 'application/json',
@@ -32,37 +34,24 @@ RpcSource.prototype.handleRequest = function(payload, next, end){
     },
     body: JSON.stringify(newPayload),
     rejectUnauthorized: false,
-    timeout: 20000,
   })
   .then((res) => {
     if (res.status != 200) {
       return new Error("HTTP Error: " + res.statusCode + " on " + method);
-
     }
 
-    // parse response
-    let data
+      // parse response into raw account
+    var data
     try {
       data = res.json()
+      if (data.error) return end(data.error)
     } catch (err) {
       console.error(err.stack)
-      return end(serializeError(err))
+      return err
     }
-    if (data.error)  return err
-
     end(null, data.result)
   })
   .catch((error) => {
     return end(error)
   })
-}
-
-// drops any non-standard params
-function sanitizePayload (payload) {
-  return {
-    id: payload.id,
-    jsonrpc: payload.jsonrpc,
-    method: payload.method,
-    params: payload.params,
-  }
 }
